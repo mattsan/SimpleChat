@@ -1,0 +1,68 @@
+#message_div
+{
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    background-color: #80e040;
+    color: #ffffff;
+    font-family: sans-serif;
+}
+
+#entrance_div
+{
+    text-align: center;
+    vertical-align: center;
+}
+
+.entrance_form
+{
+    text-align: center;
+}
+
+.entrance_table
+{
+    margin-left:auto;
+    margin-right:auto;
+    padding: 5px;
+    background-color: #f0f0ff;
+    border: 2px solid #8080ff;
+}
+
+ul
+{
+    list-style-type: none;
+    padding-left: 10px;
+    overflow: hidden;"
+}
+
+li
+{
+    padding-top: 10px;
+    padding-left: 40px;
+    margin-left: 0px;
+    background-repeat: no-repeat;
+}
+
+#prev
+{
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    background-color: #ffe0e0;
+    font-family: sans-serif;
+    cursor: pointer;
+}
+
+#username
+{
+    color:       #8080e0;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.help
+{
+    background-color: #e0e0ff;
+    margin: 5px;
+    padding: 5px;
+}

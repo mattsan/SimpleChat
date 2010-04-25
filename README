@@ -1,0 +1,8 @@
+Simple Chat program
+(pilot project)
+since Apr 26 2010
+
+Require
+  - PHP4 or PHP5
+  - SQLite3
+  - php-sqlite3 (see: http://php-sqlite3.sourceforge.net/pmwiki/pmwiki.php )

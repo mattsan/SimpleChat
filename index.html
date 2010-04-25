@@ -1,0 +1,69 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>チャット (ver.alpha)</title>
+
+<link rel="stylesheet" href="./default.css" type="text/css" />
+<script type="text/javascript" src="chat.js"></script>
+
+</head>
+
+<body id="body">
+
+<div id="message_div">
+  <span id="message"></span>
+</div>
+
+<div id="entrance_div">
+  <form name="entrance" class="entrance_frame">
+    <table class="entrance_table">
+      <tr><td>ユーザ名</td><td><input type="text" name="username" size="45" /></td></tr>
+      <tr><td>パスワード</td><td><input type="password" name="password" size="45" /></td></tr>
+      <tr><td colspan="2" style="text-align: center;"><input type="submit" value="ログイン" /></td></tr>
+    </table>
+  </form>
+</div>
+
+<div id="log_div">
+  <form name="log">
+  <table cellpadding="2px">
+  <tr>
+  <td>ひとこと！</td>
+  <td><input type="text" name="statement" size="45" /></td>
+  <td><input type="submit" value="発言" /></td>
+  <td valign="top"><a href="" id="help_button"><!--使い方--></a></td>
+  <td valign="top"><a href="" id="config_button"><!--設定--></a></td>
+  </tr>
+  </table>
+  </form>
+
+  <div style="overflow: hidden;">
+    <div id="help" class="help">
+      <table>
+        <tr><td>(big:〜)</td><td>「〜」の部分を大きな文字で表示</td></tr>
+        <tr><td>(small:〜)</td><td>「〜」の部分を小さな文字で表示</td></tr>
+        <tr><td>(red:〜)</td><td>「〜」の部分を赤い色の文字で表示（他に、blue, green, yellowが使えます）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="overflow: hidden;">
+    <form name="config" id="config" class="help">
+      <table>
+        <tr><td>アイコンのURL</td><td><input type="text" name="iconurl" size="45" /></td></tr>
+        <tr><td>配信先のメールアドレス</td><td><input type="text" name="mailaddress" size="45" /></td></tr>
+      </table>
+    </form>
+  </div>
+
+  <hr noshade="noshade" size="1px" />
+
+  <ul id="statements">
+  </ul>
+  <div id="prev">以前の発言</div>
+</div>
+
+</body>
+
+</html>
