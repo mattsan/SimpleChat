@@ -16,7 +16,7 @@
 </div>
 
 <div id="entrance_div">
-  <form name="entrance" class="entrance_frame">
+  <form name="entrance" id="entrance" class="entrance_frame">
     <table class="entrance_table">
       <tr><td>ユーザ名</td><td><input type="text" name="username" size="45" /></td></tr>
       <tr><td>パスワード</td><td><input type="password" name="password" size="45" /></td></tr>
@@ -26,12 +26,12 @@
 </div>
 
 <div id="log_div">
-  <form name="log">
+  <form name="log" id="log">
   <table cellpadding="2px">
   <tr>
   <td>ひとこと！</td>
   <td><input type="text" name="statement" size="45" /></td>
-  <td><input type="submit" value="発言" /></td>
+  <td><input type="submit" value="発言" /></td><td><a href="" id="disconnect">ログアウト</a></td>
   <td valign="top"><a href="" id="help_button"><!--使い方--></a></td>
   <td valign="top"><a href="" id="config_button"><!--設定--></a></td>
   </tr>

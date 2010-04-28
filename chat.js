@@ -1,3 +1,6 @@
+//----------------------------------------------------------------------
+// basic functions (from Learning JavaScript)
+
 function catchEvent(eventObj, event, eventHandler)
 {
     if(eventObj.addEventListener)
@@ -84,7 +87,7 @@ function getXmlHttp()
     }
 }
 
-var xmlhttp = getXmlHttp();
+//----------------------------------------------------------------------
 
 function Toggle(element)
 {
@@ -131,229 +134,28 @@ function Toggle(element)
 
 }
 
-function login(password)
+function Interval(onInterval)
 {
-    if( ! xmlhttp)
+    var id = null;
+
+    this.start = function (time)
     {
-        return;
-    }
-
-    var onLoginResultReceived = function ()
-    {
-        if( ! xmlhttp)
+        if(id)
         {
-            return;
+            clearInterval(id);
         }
 
-        if(xmlhttp.readyState != 4)
-        {
-            return;
-        }
-
-        if(xmlhttp.status != 200)
-        {
-            alert("error:status = " + xmlhttp.status);
-            return;
-        }
-
-        eval("var response = (" + xmlhttp.responseText + ")");
-
-        if( ! response["success"])
-        {
-            alert("error:" + response["errormessage"]);
-            return;
-        }
-
-        body.entrance.hide();
-        body.log.show();
-        document.log.statement.focus();
-        postRequestStatement("count=20", true);
+        id = onInterval ? setInterval(onInterval, time) : null;
     };
 
-    var url   = "login.php";
-    var query = "password=" + encodeURIComponent(password);
-    xmlhttp.open("POST", url, true);
-    xmlhttp.onreadystatechange = onLoginResultReceived;
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(query);
-}
-
-function postRequestStatement(query, insert)
-{
-    if( ! xmlhttp)
+    this.clear = function ()
     {
-        return;
-    }
-
-    onStatementsReceived = function ()
-    {
-        if( ! xmlhttp)
+        if(id)
         {
-            return;
+            clearInterval(id);
+            id = null;
         }
-
-        if(xmlhttp.readyState != 4)
-        {
-            return;
-        }
-
-        if(xmlhttp.status != 200)
-        {
-            addStatement(0, "error", "status = " + xmlhttp.status, datetime, null, true);
-            return;
-        }
-
-        eval("var response = (" + xmlhttp.responseText + ")");
-
-        var add = function (i)
-        {
-            var serial    = response[i]["serial"];
-            var username  = decodeURIComponent(response[i]["username"]);
-            var statement = decodeURIComponent(response[i]["statement"]);
-            var datetime  = response[i]["datetime"];
-            addStatement(serial, username, statement, datetime, null, insert);
-        };
-        if(insert) for(var i = response.length - 1; i >= 0; --i) add(i);
-        else       for(var i = 0; i < response.length; ++i) add(i);
-    }
-
-    var url = "read.php";
-    xmlhttp.open("POST", url, true);
-    xmlhttp.onreadystatechange = onStatementsReceived;
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(query);
-}
-
-function setup()
-{
-    var body         = document.getElementById("body");
-    var message_div  = document.getElementById("message_div");
-    var entrance_div = document.getElementById("entrance_div");
-    var log_div      = document.getElementById("log_div");
-
-    body.log      = new Toggle(log_div);
-    body.entrance = new Toggle(entrance_div);
-
-    var help   = new Toggle(document.getElementById("help"));
-    var config = new Toggle(document.getElementById("config"));
-
-    help.hide();
-    config.hide();
-
-    catchEvent(document.getElementById("help_button"),   "click", help.toggle);
-    catchEvent(document.getElementById("config_button"), "click", config.toggle);
-
-    body.log.hide();
-    body.entrance.hide();
-    statements = document.getElementById("statements").childCount = 0;
-
-
-    message_div.innerHTML = "アカウント情報を確認しています";
-
-    var username  = readCookie("username");
-    var connected = readCookie("connected");
-
-    if( ! username)
-    {
-        // アカウントがcookieにない
-        message_div.innerHTML = "ユーザ名とパスワードを入力してください";
-        body.entrance.show();
-        document.entrance.username.focus();
-    }
-    else if( ! connected)
-    {
-        // ユーザ名がcookieにあるがログインしていない
-        message_div.innerHTML = "ユーザ名とパスワードを入力してください";
-        body.entrance.show();
-        document.entrance.username.value = username;
-        document.entrance.username.focus();
-    }
-    else
-    {
-        // ログイン済み
-        message_div.innerHTML = username;
-        body.log.show();
-        document.log.username.focus();
-    }
-
-    catchEvent(document.entrance, "submit", function (event)
-    {
-        var theEvent = event ? event : window.event;
-        cancelEvent(theEvent);
-
-        if((document.entrance.username.value != "") && (document.entrance.password.value != ""))
-        {
-            message_div.innerHTML = document.entrance.username.value;
-            setCookie("username", document.entrance.username.value);
-
-            login(document.entrance.password.value);
-        }
-    });
-
-    catchEvent(document.log, "submit", function (event)
-    {
-        var theEvent = event ? event : window.event;
-        cancelEvent(theEvent);
-
-        if( ! xmlhttp)
-        {
-            return;
-        }
-
-        var newStatement = encodeURIComponent(this.statement.value);
-        this.statement.value = "";
-        var query = "statement=" + newStatement;
-        var url   = "write.php";
-        xmlhttp.open("POST", url, true);
-        xmlhttp.onreadystatechange = getNewStatements;
-        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xmlhttp.send(query);
-    });
-
-    var getNewStatements = function ()
-    {
-        if( ! xmlhttp)
-        {
-            return;
-        }
-
-        if(xmlhttp.readyState != 4)
-        {
-            return;
-        }
-
-        if(xmlhttp.status != 200)
-        {
-            // http request error
-            return;
-        }
-
-        var statements = document.getElementById("statements");
-        var lastSerial = statements.firstChild.getAttribute ? statements.firstChild.getAttribute("id") : 0;
-        postRequestStatement("greater=" + lastSerial, true);
-    }
-
-    catchEvent(document.config, "submit", function (event)
-    {
-        var theEvent = event ? event : window.event;
-        cancelEvent(theEvent);
-    });
-
-    catchEvent(document.getElementById("prev"), "click", function (event)
-    {
-        var statements = document.getElementById("statements");
-        var oldest = statements.lastChild.getAttribute ? statements.lastChild.getAttribute("id") : 0;
-        postRequestStatement("less=" + oldest + "&count=20", false);
-    });
-
-/*
-    setInterval(function ()
-    {
-        var statements = document.getElementById("statements");
-        var lastSerial = statements.firstChild.getAttribute ? statements.firstChild.getAttribute("id") : 0;
-        postRequestStatement("greater=" + lastSerial, true);
-    }, 15000);
-*/
+    };
 }
 
 function getFiller(fill, size)
@@ -370,86 +172,404 @@ function getFiller(fill, size)
     };
 }
 
-var fill08 = getFiller("0", 8);
+//----------------------------------------------------------------------
 
-function addStatement(serial, name, s, datetime, icon, insert)
+var xmlhttp = getXmlHttp();
+
+function ResponseReceiver(onResponse)
 {
-    var username = document.createElement("span");
-    username.setAttribute("id", "username");
-    username.innerHTML = name + " &gt; ";
-
-    var matched = datetime.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
-    if(matched)
+    var doResponse = function (response)
     {
-        datetime = matched[1] + "/" + matched[2] + "/" + matched[3] + " - " +
-                   matched[4] + ":" + matched[5] + ":" + matched[6];
-    }
-    var dt = document.createElement("span");
-    dt.style.fontSize = "small";
-    dt.style.color    = "silver";
-    dt.innerHTML      = " - (No." + fill08(serial) + " : " + datetime + ")";
-
-    var statement  = document.createElement("li");
-    statement.appendChild(username);
-    statement.appendChild(document.createTextNode(s));
-    statement.appendChild(dt);
-    statement.style.backgroundImage = icon;
-    statement.setAttribute("id", serial);
-
-    var statements = document.getElementById("statements");
-    if(insert)
-    {
-        statements.insertBefore(statement, statements.firstChild);
-    }
-    else
-    {
-        statements.appendChild(statement);
+        if(onResponse)
+        {
+            onResponse(response);
+        }
     }
 
-    fadein(statement);
+    this.responseReceived = function ()
+    {
+        if( ! xmlhttp)
+        {
+            return;
+        }
+
+        if(xmlhttp.readyState != 4)
+        {
+            return;
+        }
+
+        if(xmlhttp.status != 200)
+        {
+            doResponse({ good: false, what: "status error: status = " + xmlhttp.status });
+        }
+
+        try
+        {
+            eval("var response = (" + xmlhttp.responseText + ")");
+            doResponse(response);
+        }
+        catch(e)
+        {
+            doResponse({ good: false, what: e + "(" + xmlhttp.responseText + ")" });
+        }
+    }
 }
 
-function fadein(item)
+function Server()
 {
-    if("フェードインを無効化");
+    var post = function (url, query, onResponse)
     {
-//        return;
+        var receiver = new ResponseReceiver(onResponse);
+
+        xmlhttp.open("POST", url, true);
+        xmlhttp.onreadystatechange = function () { receiver.responseReceived(); };
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send(query);
+    };
+
+    this.login = function (password, onResponse)
+    {
+        post("login.php", "password=" + encodeURIComponent(password), onResponse);
+    };
+
+    this.write = function (statement, onResponse)
+    {
+        post("write.php", "statement=" + statement, onResponse);
+    };
+
+    this.read = function (query, onResponse)
+    {
+        post("read.php", query, onResponse);
+    };
+}
+
+function View()
+{
+    var fill08 = getFiller("0", 8);
+
+    var body         = document.getElementById("body");
+    var message_div  = document.getElementById("message_div");
+    var entrance_div = document.getElementById("entrance_div");
+    var log_div      = document.getElementById("log_div");
+    var statements   = document.getElementById("statements");
+
+    body.log      = new Toggle(log_div);
+    body.entrance = new Toggle(entrance_div);
+    body.help     = new Toggle(document.getElementById("help"));
+    body.config   = new Toggle(document.getElementById("config"));
+
+    body.help.hide();
+    body.config.hide();
+
+    catchEvent(document.getElementById("help_button"),   "click", function () { body.help.toggle;   });
+    catchEvent(document.getElementById("config_button"), "click", function () { body.config.toggle; });
+
+    while(statements.hasChildNodes())
+    {
+        statements.removeChild(statements.firstChild);
     }
 
-    item.style.marginTop = "-" + item.offsetHeight + "px";
-    var top = -item.offsetHeight;
-    var fadein_id = setInterval(function ()
+    var createNode = function (serial, username, statement, datetime, icon)
     {
-        if(top < 0)
+        var username_span = document.createElement("span");
+        username_span.setAttribute("id", "username");
+        username_span.innerHTML = username + " &gt; ";
+
+        var matched = datetime.match(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/);
+        if(matched)
         {
-            item.style.marginTop = top + "px";
-            top += 2;
+            datetime = matched[1] + "/" + matched[2] + "/" + matched[3] + " - " +
+                       matched[4] + ":" + matched[5] + ":" + matched[6];
+        }
+
+        var serial_datetime_span = document.createElement("span");
+        serial_datetime_span.setAttribute("id", "datetime");
+        serial_datetime_span.innerHTML = " - (No." + fill08(serial) + " : " + datetime + ")";
+        
+        var result  = document.createElement("li");
+        result.appendChild(username_span);
+        result.appendChild(document.createTextNode(statement));
+        result.appendChild(serial_datetime_span);
+        result.style.backgroundImage = icon;
+        result.setAttribute("id", serial);
+
+        return result;
+    };
+
+    var fadein = function (item)
+    {
+        item.style.marginTop = "-" + item.offsetHeight + "px";
+        var top = -item.offsetHeight;
+        var fadein_id = setInterval(function ()
+        {
+            if(top < 0)
+            {
+                item.style.marginTop = top + "px";
+                top += 2;
+            }
+            else
+            {
+                item.style.marginTop = "0px";
+                clearInterval(fadein_id);
+            }
+        }, 20);
+    }
+
+    this.setLoginSubmitted = function (onSubmitted)
+    {
+        catchEvent(document.getElementById("entrance"), "submit", function (event)
+        {
+            var theEvent = event ? event : window.event;
+            cancelEvent(theEvent);
+
+            if(onSubmitted)
+            {
+                onSubmitted(event);
+            }
+        });
+    }
+
+    this.setStatementSubmitted = function (onSubmitted)
+    {
+        catchEvent(document.getElementById("log"), "submit", function (event)
+        {
+            var theEvent = event ? event : window.event;
+            cancelEvent(theEvent);
+
+            if(onSubmitted)
+            {
+                onSubmitted(event);
+            }
+        });
+    }
+
+    this.setPreiousRequested = function (onRequested)
+    {
+        catchEvent(document.getElementById("prev"), "click", function (event)
+        {
+            var theEvent = event ? event : window.event;
+            cancelEvent(theEvent);
+
+            if(onRequested)
+            {
+                onRequested(event);
+            }
+        });
+    };
+
+    this.setDisconnectRequested = function (onRequested)
+    {
+        catchEvent(document.getElementById("disconnect"), "click", function (event)
+        {
+            var theEvent = event ? event : window.event;
+            cancelEvent(theEvent);
+
+            if(onRequested)
+            {
+                onRequested(event);
+            }
+        });
+    };
+
+    this.getNewStatement = function ()
+    {
+        var result = document.getElementById("log").statement.value;
+        document.getElementById("log").statement.value = "";
+        return result;
+    };
+
+    this.getSerialOfNewestStatement = function ()
+    {
+        return statements.firstChild.getAttribute("id");
+    };
+
+    this.getSerialOfOldestStatement = function ()
+    {
+        return statements.lastChild.getAttribute("id");
+    };
+
+    this.setUsername = function (username)
+    {
+    };
+
+    this.setMessage = function (message)
+    {
+        message_div.innerHTML = message;
+    };
+
+    this.showEntrance = function ()
+    {
+        body.log.hide();
+        body.entrance.show();
+        document.getElementById("entrance").username.focus();
+    };
+
+    this.showLog = function ()
+    {
+        body.entrance.hide();
+        body.log.show();
+        document.getElementById("log").statement.focus();
+    };
+
+    this.insertBeforeNewest = function (serial, username, statement, datetime, icon)
+    {
+        var node = createNode(serial, username, statement, datetime, icon);
+        statements.insertBefore(node, statements.firstChild);
+        fadein(node);
+    };
+
+    this.appendAfterOldest = function (serial, username, statement, datetime, icon)
+    {
+        var node = createNode(serial, username, statement, datetime, icon);
+        statements.appendChild(node);
+        fadein(node);
+    };
+}
+
+function Chat(server, view)
+{
+    var readUpdated = function ()
+    {
+        readStatements({ good: true });
+    };
+
+    var interval = new Interval(readUpdated);
+
+    var disconnect = function (event)
+    {
+        eraseCookie("connected");
+        interval.clear();
+        showEntrance();
+    };
+
+    var isConnected = function ()
+    {
+        return readCookie("connected") == "true";
+    };
+
+    var appendStatements = function (response)
+    {
+        if(response.good)
+        {
+            view.setMessage((new Date()).toLocaleString() + " 現在の発言状況");
+            for(var i = 0; i < response.statements.length; ++i)
+            {
+                var serial    = response.statements[i].serial;
+                var username  = decodeURIComponent(response.statements[i].username);
+                var statement = decodeURIComponent(response.statements[i].statement);
+                var datetime  = response.statements[i].datetime;
+                view.appendAfterOldest(serial, username, statement, datetime, null);
+            }
         }
         else
         {
-            item.style.marginTop = "0px";
-            clearInterval(fadein_id);
+            view.setMessage("発言の読み取りに失敗しました：" + response.what);
         }
-    }, 20);
-}
+    };
 
-function fadeout(item)
-{
-    var top = 0;
-    var fadein_id = setInterval(function ()
+    var showLogAndReadStatements = function (response)
     {
-        if(top > -item.offsetHeight)
+        if(response.good)
         {
-            item.style.marginTop = top + "px";
-            top -= 2;
+            setCookie("connected", true); // <<< TODO: isConnected/disconnect と非対称
+            view.showLog();
+            view.setMessage("");
+            interval.start(10000);
+            server.read("count=20", appendStatements);
         }
         else
         {
-            item.style.marginTop = "-" + item.offsetHeight + "px";
-            clearInterval(fadein_id);
+            view.setMessage("ログインに失敗しました：" + response.what);
         }
-    }, 20);
+    };
+
+    var insertStatements = function (response)
+    {
+        if(response.good)
+        {
+            view.setMessage((new Date()).toLocaleString() + " 現在の発言状況");
+            for(var i = response.statements.length - 1; i >= 0; --i)
+            {
+                var serial    = response.statements[i].serial;
+                var username  = decodeURIComponent(response.statements[i].username);
+                var statement = decodeURIComponent(response.statements[i].statement);
+                var datetime  = response.statements[i].datetime;
+                view.insertBeforeNewest(serial, username, statement, datetime, null);
+            }
+        }
+        else
+        {
+            view.setMessage("発言の読み取りに失敗しました：" + response.what);
+        }
+    };
+
+    var readStatements = function (response)
+    {
+        if(response.good)
+        {
+            server.read("greater=" + view.getSerialOfNewestStatement(), insertStatements);
+        }
+        else
+        {
+            view.setMessage("発言の書き込みに失敗しました：" + response.what);
+        }
+    };
+
+    var login = function (event)
+    {
+        var entrance = document.getElementById("entrance"); // <<< TODO: Viewをバイパスしてる。
+        if((entrance.username.value == "") || (entrance.password.value == ""))
+        {
+            return;
+        }
+
+        view.setMessage("ログイン処理中");
+        setCookie("username", entrance.username.value); // <<< TODO: Viewをバイパスしてる。
+        server.login(entrance.password.value, showLogAndReadStatements);
+    };
+
+    var sendStatement = function (event)
+    {
+        server.write(view.getNewStatement(), readStatements);
+    };
+
+    var readPreviousStatements = function (event)
+    {
+        server.read("less=" + view.getSerialOfOldestStatement() + "&count=20", appendStatements);
+    };
+
+    var showEntrance = function ()
+    {
+        var entrance = document.getElementById("entrance"); // <<< TODO: Viewをバイパスしてる
+        entrance.username.value = readCookie("username");   // <<< TODO: Viewをバイパスしてる
+        view.showEntrance();
+    };
+
+    this.exec = function ()
+    {
+        view.setLoginSubmitted(login);
+        view.setStatementSubmitted(sendStatement);
+        view.setPreiousRequested(readPreviousStatements);
+        view.setDisconnectRequested(disconnect);
+
+        if(isConnected())
+        {
+            showLogAndReadStatements({ good: true });
+        }
+        else
+        {
+            view.setMessage("ユーザ名とパスワードを入力してください");
+            showEntrance();
+        }
+    };
+}
+
+function setup()
+{
+    var server = new Server();
+    var view   = new View();
+    var chat   = new Chat(server, view);
+    chat.exec();
 }
 
 catchEvent(window, "load", setup);
-

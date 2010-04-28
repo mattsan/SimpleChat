@@ -3,11 +3,23 @@
 $username = $_COOKIE["username"];
 $password = $_POST["password"];
 
+if(( ! $username) || ($username == ""))
+{
+    echo "{ good: false, what: \"no username\" }";
+    return;
+}
+
+if(( ! $password) || ($password == ""))
+{
+    echo "{ good: false, what: \"no password\" }";
+    return;
+}
+
 $resource = sqlite3_open("account.db");
 
 if( ! $resource)
 {
-    echo "{ success: false, errormessage: \"account database open error\" }";
+    echo "{ good: false, what: \"account database open error\" }";
     return;
 }
 
@@ -35,20 +47,20 @@ if($resultset)
     {
         sqlite3_exec($resource, "insert into 'accounts' (username, password)".
                                 " values (\"$username\", \"$password\");");
-        echo "{ success: true, usename: \"$username\", password: \"$password\" }";
+        echo "{ good: true, usename: \"$username\" }";
     }
     else if($a["password"] == $password)
     {
-        echo "{ success: true }";
+        echo "{ good: true }";
     }
     else
     {
-        echo "{ success: false, errormessage: \"$username - password unmatched\", username: \"$username\", password: [\"$password\", \"$a[password]\" ] }";
+        echo "{ good: false, what: \"$username - password unmatched\", username: \"$username\" }";
     }
 }
 else
 {
-    echo "{ success: false, errormessage: \"no account table\" }";
+    echo "{ good: false, what: \"no account table\" }";
 }
 
 sqlite3_close($resource);

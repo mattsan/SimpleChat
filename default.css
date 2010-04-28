@@ -66,3 +66,9 @@ li
     margin: 5px;
     padding: 5px;
 }
+
+#datetime
+{
+    font-size: small;
+    color: silver;
+}
