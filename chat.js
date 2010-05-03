@@ -176,6 +176,9 @@ function getFiller(fill, size)
 
 var xmlhttp = getXmlHttp();
 
+//----------------------------------------------------------------------
+// server
+
 function ResponseReceiver(onResponse)
 {
     var doResponse = function (response)
@@ -241,7 +244,16 @@ function Server()
     {
         post("read.php", query, onResponse);
     };
+
+    this.configure = function (iconurl, mailaddress, onConfigured)
+    {
+        var query = "iconurl=" + iconurl + "&mailaddress=" + mailaddress;
+        post("configure.php", query, onConfigured);
+    };
 }
+
+//----------------------------------------------------------------------
+// view
 
 function View()
 {
@@ -252,24 +264,56 @@ function View()
     var entrance_div = document.getElementById("entrance_div");
     var log_div      = document.getElementById("log_div");
     var statements   = document.getElementById("statements");
+    var clearLog     = function () { while(statements.hasChildNodes()) { statements.removeChild(statements.firstChild); } };
 
     body.log      = new Toggle(log_div);
     body.entrance = new Toggle(entrance_div);
     body.help     = new Toggle(document.getElementById("help"));
     body.config   = new Toggle(document.getElementById("config"));
 
-    body.help.hide();
-    body.config.hide();
-
     catchEvent(document.getElementById("help_button"),   "click", function () { body.help.toggle;   });
     catchEvent(document.getElementById("config_button"), "click", function () { body.config.toggle; });
 
-    while(statements.hasChildNodes())
-    {
-        statements.removeChild(statements.firstChild);
-    }
+    body.log.hide();
+    body.entrance.hide();
+    body.help.hide();
+    body.config.hide();
 
-    var createNode = function (serial, username, statement, datetime, icon)
+    clearLog();
+
+    var addTextWithAnchor = function (elem, source)
+    {
+        var pattern_http = new RegExp("s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:\@&=+\$,%#]+");
+
+        var s = source;
+        var result;
+        while((result = pattern_http.exec(s)) != null)
+        {
+            var plane = document.createTextNode(s.substring(0, result.index));
+            elem.appendChild(plane);
+            var anchor = document.createElement("a");
+            anchor.setAttribute("href", result[0]);
+            anchor.setAttribute("target", "_blank");
+            anchor.innerHTML = result[0];
+            elem.appendChild(anchor);
+            s = s.substring(result.index + result[0].length);
+        }
+        var plane = document.createTextNode(s);
+        elem.appendChild(plane);
+    };
+
+    var decorate = function (elem)
+    {
+        var pattern = /\(\((small|large|red|blue|green|yellow):(.*?)\)\)/
+        var s = elem.innerHTML;
+        while(pattern.test(s))
+        {
+            s = s.replace(pattern, "<span class=\"deco_$1\">$2</span>");
+        }
+        elem.innerHTML = s;
+    };
+
+    var createNode = function (serial, username, statement, datetime, iconurl)
     {
         var username_span = document.createElement("span");
         username_span.setAttribute("id", "username");
@@ -288,15 +332,20 @@ function View()
         
         var result  = document.createElement("li");
         result.appendChild(username_span);
-        result.appendChild(document.createTextNode(statement));
+        var decoratedStatement = document.createElement("span");
+        addTextWithAnchor(decoratedStatement, statement);
+        decorate(decoratedStatement);
+        result.appendChild(decoratedStatement);
         result.appendChild(serial_datetime_span);
-        result.style.backgroundImage = icon;
+        result.style.backgroundImage = "url(" + iconurl + ")";
         result.setAttribute("id", serial);
 
         return result;
     };
 
-    var fadein = function (item)
+    var fadein = function (item) {};
+
+    var fadein_ = function (item)
     {
         item.style.marginTop = "-" + item.offsetHeight + "px";
         var top = -item.offsetHeight;
@@ -315,6 +364,40 @@ function View()
         }, 20);
     }
 
+    catchEvent(document.getElementById("config_button"), "click", function (event)
+    {
+        var theEvent = event ? event : window.event;
+        cancelEvent(theEvent);
+        body.config.toggle();
+    });
+
+    catchEvent(document.getElementById("help_button"), "click", function (event)
+    {
+        var theEvent = event ? event : window.event;
+        cancelEvent(theEvent);
+        body.help.toggle();
+    });
+
+    catchEvent(document.getElementById("config"), "submit", function (event)
+    {
+        var theEvent = event ? event : window.event;
+        cancelEvent(theEvent);
+
+        body.config.hide();
+    });
+
+    catchEvent(document.getElementById("selecticon"), "click", function (event)
+    {
+        var theEvent = event ? event : window.event;
+        cancelEvent(theEvent);
+
+        window.setIconUrl = function (iconurl)
+        {
+            document.getElementById("config").iconurl.value = iconurl;
+        };
+        window.open("icon.php");;
+    });
+
     this.setLoginSubmitted = function (onSubmitted)
     {
         catchEvent(document.getElementById("entrance"), "submit", function (event)
@@ -327,7 +410,7 @@ function View()
                 onSubmitted(event);
             }
         });
-    }
+    };
 
     this.setStatementSubmitted = function (onSubmitted)
     {
@@ -341,7 +424,7 @@ function View()
                 onSubmitted(event);
             }
         });
-    }
+    };
 
     this.setPreiousRequested = function (onRequested)
     {
@@ -371,6 +454,29 @@ function View()
         });
     };
 
+    this.setConfigured = function (onConfigured)
+    {
+        body.config.onshow = function ()
+        {
+            if(onConfigured)
+            {
+                var values = onConfigured(null);
+                var config = document.getElementById("config");
+                config.iconurl.value     = values.iconurl;
+                config.mailaddress.value = values.mailaddress;
+            }
+        };
+
+        body.config.onhide = function ()
+        {
+            if(onConfigured)
+            {
+                var config = document.getElementById("config");
+                onConfigured({ iconurl: config.iconurl.value, mailaddress: config.mailaddress.value });
+            }
+        };
+    };
+
     this.getNewStatement = function ()
     {
         var result = document.getElementById("log").statement.value;
@@ -380,7 +486,7 @@ function View()
 
     this.getSerialOfNewestStatement = function ()
     {
-        return statements.firstChild.getAttribute("id");
+        return statements.firstChild ? statements.firstChild.getAttribute("id") : 0;
     };
 
     this.getSerialOfOldestStatement = function ()
@@ -399,6 +505,7 @@ function View()
 
     this.showEntrance = function ()
     {
+        clearLog();
         body.log.hide();
         body.entrance.show();
         document.getElementById("entrance").username.focus();
@@ -411,23 +518,29 @@ function View()
         document.getElementById("log").statement.focus();
     };
 
-    this.insertBeforeNewest = function (serial, username, statement, datetime, icon)
+    this.insertBeforeNewest = function (serial, username, statement, datetime, iconurl)
     {
-        var node = createNode(serial, username, statement, datetime, icon);
+        var node = createNode(serial, username, statement, datetime, iconurl);
         statements.insertBefore(node, statements.firstChild);
         fadein(node);
     };
 
-    this.appendAfterOldest = function (serial, username, statement, datetime, icon)
+    this.appendAfterOldest = function (serial, username, statement, datetime, iconurl)
     {
-        var node = createNode(serial, username, statement, datetime, icon);
+        var node = createNode(serial, username, statement, datetime, iconurl);
         statements.appendChild(node);
         fadein(node);
     };
 }
 
+//----------------------------------------------------------------------
+// chat
+
 function Chat(server, view)
 {
+    var iconurl     = "";
+    var mailaddress = "";
+
     var readUpdated = function ()
     {
         readStatements({ good: true });
@@ -439,6 +552,7 @@ function Chat(server, view)
     {
         eraseCookie("connected");
         interval.clear();
+        view.setMessage("ユーザ名とパスワードを入力してください");
         showEntrance();
     };
 
@@ -458,7 +572,8 @@ function Chat(server, view)
                 var username  = decodeURIComponent(response.statements[i].username);
                 var statement = decodeURIComponent(response.statements[i].statement);
                 var datetime  = response.statements[i].datetime;
-                view.appendAfterOldest(serial, username, statement, datetime, null);
+                var iconurl   = response.statements[i].iconurl;
+                view.appendAfterOldest(serial, username, statement, datetime, iconurl);
             }
         }
         else
@@ -471,9 +586,11 @@ function Chat(server, view)
     {
         if(response.good)
         {
+            iconurl     = response.iconurl;
+            mailaddress = response.mailaddress;
             setCookie("connected", true); // <<< TODO: isConnected/disconnect と非対称
             view.showLog();
-            view.setMessage("");
+            view.setMessage("最新の発言を読み込み中");
             interval.start(10000);
             server.read("count=20", appendStatements);
         }
@@ -494,7 +611,7 @@ function Chat(server, view)
                 var username  = decodeURIComponent(response.statements[i].username);
                 var statement = decodeURIComponent(response.statements[i].statement);
                 var datetime  = response.statements[i].datetime;
-                view.insertBeforeNewest(serial, username, statement, datetime, null);
+                view.insertBeforeNewest(serial, username, statement, datetime, iconurl);
             }
         }
         else
@@ -518,25 +635,61 @@ function Chat(server, view)
     var login = function (event)
     {
         var entrance = document.getElementById("entrance"); // <<< TODO: Viewをバイパスしてる。
-        if((entrance.username.value == "") || (entrance.password.value == ""))
+        var username = entrance.username.value; // <<< TODO: Viewをバイパスしてる。
+        var password = entrance.password.value; // <<< TODO: Viewをバイパスしてる。
+        if((username == "") || (password == ""))
         {
             return;
         }
 
         view.setMessage("ログイン処理中");
-        setCookie("username", entrance.username.value); // <<< TODO: Viewをバイパスしてる。
-        server.login(entrance.password.value, showLogAndReadStatements);
+        setCookie("username", username);
+        setCookie("password", password);
+        server.login(password, showLogAndReadStatements);
     };
 
     var sendStatement = function (event)
     {
-        server.write(view.getNewStatement(), readStatements);
+        var newstatement = view.getNewStatement();
+        if(newstatement != "")
+        {
+            server.write(newstatement, readStatements);
+        }
     };
 
     var readPreviousStatements = function (event)
     {
         server.read("less=" + view.getSerialOfOldestStatement() + "&count=20", appendStatements);
     };
+
+    var showConfiguredResult = function (response)
+    {
+        if(response.good)
+        {
+            iconurl     = response.iconurl;
+            mailaddress = response.mailaddress;
+            view.setMessage("設定を更新しました");
+        }
+        else
+        {
+            view.setMessage("設定に失敗しました：" + response.what);
+        }
+    }
+
+    var setConfig = function (config)
+    {
+        if(config)
+        {
+            if((iconurl != config.iconurl) || (mailaddress != config.mailaddress))
+            {
+                server.configure(config.iconurl, config.mailaddress, showConfiguredResult);
+            }
+        }
+        else
+        {
+            return { iconurl: iconurl, mailaddress: mailaddress };
+        }
+    }
 
     var showEntrance = function ()
     {
@@ -551,10 +704,12 @@ function Chat(server, view)
         view.setStatementSubmitted(sendStatement);
         view.setPreiousRequested(readPreviousStatements);
         view.setDisconnectRequested(disconnect);
+        view.setConfigured(setConfig);
 
         if(isConnected())
         {
-            showLogAndReadStatements({ good: true });
+            view.setMessage("ログイン処理中");
+            server.login(readCookie("password"), showLogAndReadStatements);
         }
         else
         {
@@ -563,6 +718,9 @@ function Chat(server, view)
         }
     };
 }
+
+//----------------------------------------------------------------------
+// entry point
 
 function setup()
 {

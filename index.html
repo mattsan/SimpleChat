@@ -29,11 +29,16 @@
   <form name="log" id="log">
   <table cellpadding="2px">
   <tr>
-  <td>ひとこと！</td>
-  <td><input type="text" name="statement" size="45" /></td>
-  <td><input type="submit" value="発言" /></td><td><a href="" id="disconnect">ログアウト</a></td>
-  <td valign="top"><a href="" id="help_button"><!--使い方--></a></td>
-  <td valign="top"><a href="" id="config_button"><!--設定--></a></td>
+    <td>ひとこと！</td>
+    <td><input type="text" name="statement" size="80" /></td>
+    <td><input type="submit" value="発言" /></td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <a href="" id="disconnect">ログアウト</a> ／ 
+      <a href="" id="help_button">使い方</a> ／ 
+      <a href="" id="config_button">設定</a>
+    </td>
   </tr>
   </table>
   </form>
@@ -41,9 +46,9 @@
   <div style="overflow: hidden;">
     <div id="help" class="help">
       <table>
-        <tr><td>(big:〜)</td><td>「〜」の部分を大きな文字で表示</td></tr>
-        <tr><td>(small:〜)</td><td>「〜」の部分を小さな文字で表示</td></tr>
-        <tr><td>(red:〜)</td><td>「〜」の部分を赤い色の文字で表示（他に、blue, green, yellowが使えます）</td></tr>
+        <tr><td>((large:〜))</td><td>「〜」の部分を大きな文字で表示</td></tr>
+        <tr><td>((small:〜))</td><td>「〜」の部分を小さな文字で表示</td></tr>
+        <tr><td>((red:〜))</td><td>「〜」の部分を赤い色の文字で表示（他に、blue, green, yellowが使えます）</td></tr>
       </table>
     </div>
   </div>
@@ -51,8 +56,23 @@
   <div style="overflow: hidden;">
     <form name="config" id="config" class="help">
       <table>
-        <tr><td>アイコンのURL</td><td><input type="text" name="iconurl" size="45" /></td></tr>
-        <tr><td>配信先のメールアドレス</td><td><input type="text" name="mailaddress" size="45" /></td></tr>
+        <tr>
+          <td>アイコンのURL</td>
+          <td><input type="text" name="iconurl" size="45" /></td>
+          <td style="font-size: small;"><a href="" id="selecticon">アイコンの変更</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="2" style="font-size: small;">相対でも絶対（http://〜から始まるURL）でも指定できます</td>
+        </tr>
+        <tr>
+          <td>メールアドレス</td>
+          <td><input type="text" name="mailaddress" size="45" /></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="2" style="font-size: small;">投稿されたときにこのメールアドレス宛に発言が送信されます</td>
+        </tr>
       </table>
     </form>
   </div>
@@ -61,7 +81,7 @@
 
   <ul id="statements">
   </ul>
-  <div id="prev">以前の発言</div>
+  <div id="prev" class="prev">以前の発言</div>
 </div>
 
 </body>

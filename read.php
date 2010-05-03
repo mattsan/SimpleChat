@@ -4,15 +4,16 @@ $greater = $_POST["greater"];
 $less    = $_POST["less"];
 $count   = $_POST["count"];
 
-$resource = sqlite3_open("chat.db");
+$handle = sqlite3_open("chat.db");
 
-if( ! $resource)
+if( ! $handle)
 {
-    echo "{ good: false, what: \"cannot open database\" }";
+    echo "{ good: false, what: \"cannot open database: ".sqlite3_error($handle)."\" }";
     return;
 }
 
-$query = "select serial, username, statement, datetime from 'statements'";
+$query = "select serial, statements.username, statement, datetime, iconurl".
+         "  from statements natural left join accounts";
 if($greater && $less)
 {
     $query .= " where (serial < $less) and ($greater < serial)";
@@ -33,23 +34,28 @@ if($count)
 }
 $query .= ";";
 
-$resultset = sqlite3_query($resource, $query);
+$resultset = sqlite3_query($handle, $query);
 
 if($resultset)
 {
     echo "{ good: true, statements: [";
     while($a = sqlite3_fetch_array($resultset))
     {
-        echo "  { serial : \"$a[serial]\", username : \"$a[username]\", statement : \"$a[statement]\", datetime : \"$a[datetime]\" },\n";
+        echo "{ serial    : \"$a[serial]\",".
+             "  username  : \"$a[username]\",".
+             "  statement : \"$a[statement]\",".
+             "  datetime  : \"$a[datetime]\",".
+             "  iconurl   : \"$a[iconurl]\"".
+             "},\n";
     }
     sqlite3_query_close($resultset);
     echo "] }";
 }
 else
 {
-    echo "{ good: false, what: \"read statements error\" }";
+    echo "{ good: false, what: \"read statements error: ".sqlite3_error($handle)."\" }";
 }
 
-sqlite3_close($resource);
+sqlite3_close($handle);
 
 ?>

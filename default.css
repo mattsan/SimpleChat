@@ -4,6 +4,7 @@
     margin: 5px;
     text-align: center;
     background-color: #80e040;
+    border: 2px solid #40a020;
     color: #ffffff;
     font-family: sans-serif;
 }
@@ -37,19 +38,21 @@ ul
 
 li
 {
-    padding-top: 10px;
-    padding-left: 40px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+    padding-left: 50px;
     margin-left: 0px;
     background-repeat: no-repeat;
 }
 
-#prev
+.prev
 {
     padding: 5px;
     margin: 5px;
     text-align: center;
     background-color: #ffe0e0;
     font-family: sans-serif;
+    border: 2px solid #ff8080;
     cursor: pointer;
 }
 
@@ -71,4 +74,35 @@ li
 {
     font-size: small;
     color: silver;
+}
+
+.deco_red
+{
+    color: red;
+}
+
+.deco_blue
+{
+    color: blue;
+}
+
+.deco_green
+{
+    color: green;
+}
+
+.deco_yellow
+{
+    color: yellow;
+}
+
+.deco_large
+{
+    font-family: sans-serif;
+    font-size: x-large;
+}
+
+.deco_small
+{
+    font-size: x-small;
 }
