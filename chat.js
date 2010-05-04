@@ -540,10 +540,14 @@ function Chat(server, view)
 {
     var iconurl     = "";
     var mailaddress = "";
+    var writing     = false;
 
     var readUpdated = function ()
     {
-        readStatements({ good: true });
+        if( ! writing)
+        {
+            readStatements({ good: true });
+        }
     };
 
     var interval = new Interval(readUpdated);
@@ -618,6 +622,7 @@ function Chat(server, view)
         {
             view.setMessage("発言の読み取りに失敗しました：" + response.what);
         }
+        writing = false;
     };
 
     var readStatements = function (response)
@@ -629,6 +634,7 @@ function Chat(server, view)
         else
         {
             view.setMessage("発言の書き込みに失敗しました：" + response.what);
+            writing = false;
         }
     };
 
@@ -650,6 +656,7 @@ function Chat(server, view)
 
     var sendStatement = function (event)
     {
+        writing = true;
         var newstatement = view.getNewStatement();
         if(newstatement != "")
         {

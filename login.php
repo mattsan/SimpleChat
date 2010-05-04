@@ -37,7 +37,8 @@ if($resultset)
                  "  username    varchar(50) primary key,".
                  "  password    varchar(100),".
                  "  iconurl     varchar(100),".
-                 "  mailaddress varchar(100)".
+                 "  mailaddress varchar(100),".
+                 "  established char(14)".
                  ");";
         if( ! sqlite3_exec($handle, $query))
         {
@@ -57,8 +58,9 @@ if($resultset)
 
     if($a["username"] == "")
     {
-        $query = "insert into accounts (username, password, iconurl, mailaddress)".
-                 "  values (\"$username\", \"$password\", \"\", \"\");";
+        $today = date("YmdHis");
+        $query = "insert into accounts (username, password, iconurl, mailaddress, established)".
+                 "  values (\"$username\", \"$password\", \"\", \"\", \"$today\");";
         if(sqlite3_exec($handle, $query))
         {
             echo "{ good: true, usename: \"$username\", iconurl: \"\", mailaddress: \"\"  }";

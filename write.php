@@ -48,6 +48,46 @@ if(($username != "") && ($statement != ""))
     if($result)
     {
         echo "{ good: true }";
+        // TODO: send mail
+        $addresses = array();
+        $serial    = 0;
+
+        $query     = "select distinct mailaddress from accounts where mailaddress<>\"\";";
+        $resultset = sqlite3_query($handle, $query);
+        if($resultset)
+        {
+            while($a = sqlite3_fetch_array($resultset))
+            {
+                array_push($addresses, $a["mailaddress"]);
+            }
+            sqlite3_query_close($resultset);
+        }
+
+        $query     = "select max(serial) from statements;";
+        $resultset = sqlite3_query($handle, $query);
+        if($resultset)
+        {
+            $a = sqlite3_fetch_array($resultset);
+            $serial = $a["max(serial)"];
+            sqlite3_query_close($resultset);
+        }
+
+        if(count($addresses) > 0)
+        {
+            // TODO: send mail
+            // （代替コード）
+            $fh = fopen("mail.log", "a+");
+            if($fh)
+            {
+                fprintf($fh, "(%s) %s > %s - (No.%08d - %s)\n",
+                             join($addresses, ","),
+                             $username,
+                             $statement,
+                             $serial,
+                             date("Y/m/d-H:i:s"));
+                fclose($fh);
+            }
+        }
     }
     else
     {
