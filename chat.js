@@ -648,6 +648,7 @@ function Chat(server, view)
             return;
         }
 
+        password = hex_sha1(password);
         view.setMessage("ログイン処理中");
         setCookie("username", username);
         setCookie("password", password);

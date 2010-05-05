@@ -6,3 +6,4 @@ Require
   - PHP4 or PHP5
   - SQLite3
   - php-sqlite3 (see: http://php-sqlite3.sourceforge.net/pmwiki/pmwiki.php )
+  - SHA-1 by JavaScript MD5 (see: http://pajhome.org.uk/crypt/md5/index.html )
