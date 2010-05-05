@@ -1,14 +1,26 @@
 <?php
 
-$greater = $_POST["greater"];
-$less    = $_POST["less"];
-$count   = $_POST["count"];
+$greater      = $_POST["greater"];
+$less         = $_POST["less"];
+$count        = $_POST["count"];
+$databasename = "chat";
 
-$handle = sqlite3_open("chat.db");
-
-if( ! $handle)
+if(( ! $username) || ($username == ""))
 {
-    echo "{ good: false, what: \"cannot open database: ".sqlite3_error($handle)."\" }";
+    echo "{ good: false, what: \"no username\" }";
+    return;
+}
+
+if( ! mysql_connect())
+{
+    echo "{ good: false, what: \"cannot connect DBMS: ".mysql_error()."\" }";
+    return;
+}
+
+if( ! mysql_select_db($databasename))
+{
+    echo "{ good: false, what: \"cannot select database: ".mysql_error()."\" }";
+    mysql_close();
     return;
 }
 
@@ -34,12 +46,11 @@ if($count)
 }
 $query .= ";";
 
-$resultset = sqlite3_query($handle, $query);
-
-if($resultset)
+$resultset = mysql_query($query);
+if()
 {
     echo "{ good: true, statements: [";
-    while($a = sqlite3_fetch_array($resultset))
+    while($a = mysql_fetch_assoc($resultset))
     {
         echo "{ serial    : \"$a[serial]\",".
              "  username  : \"$a[username]\",".
@@ -48,14 +59,14 @@ if($resultset)
              "  iconurl   : \"$a[iconurl]\"".
              "},\n";
     }
-    sqlite3_query_close($resultset);
+    mysql_free_result($resultset);
     echo "] }";
 }
 else
 {
-    echo "{ good: false, what: \"read statements error: ".sqlite3_error($handle)."\" }";
+    echo "{ good: false, what: \"read statements error: ".mysql_error()."\" }";
 }
 
-sqlite3_close($handle);
+mysql_close();
 
 ?>

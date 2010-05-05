@@ -1,38 +1,39 @@
 <?php
 
-$username    = $_COOKIE["username"];
-$iconurl     = $_POST["iconurl"];
-$mailaddress = $_POST["mailaddress"];
+$username     = $_COOKIE["username"];
+$iconurl      = $_POST["iconurl"];
+$mailaddress  = $_POST["mailaddress"];
+$databasename = "chat";
 
-$handle = sqlite3_open("chat.db");
-
-if( ! $handle)
+if(( ! $username) || ($username == ""))
 {
-    echo "{ good: false, what: \"cannot open database: ".sqlite3_error($handle)."\"}";
+    echo "{ good: false, what: \"no username\" }";
     return;
 }
 
-$query = "select count(*) from sqlite_master where type=\"table\" and name=\"statements\"";
-$resultset = sqlite3_query($handle, $query);
-
-if( ! $resultset)
+if( ! mysql_connect())
 {
-    echo "{ good: false, what: \"".sqlite3_error($handle)."\" }";
-    sqlite3_close($handle);
+    echo "{ good: false, what: \"cannot connect DBMS: ".mysql_error()."\" }";
     return;
 }
-sqlite3_query_close($resultset);
+
+if( ! mysql_select_db($databasename))
+{
+    echo "{ good: false, what: \"cannot select database: ".mysql_error()."\" }";
+    mysql_close();
+    return;
+}
 
 $query = "update accounts set iconurl=\"$iconurl\", mailaddress=\"$mailaddress\" where username=\"$username\";";
-if(sqlite3_exec($handle, $query))
+if(mysql_query($query))
 {
     echo "{ good: true, username: \"$username\", iconurl: \"$iconurl\", mailaddress: \"$mailaddress\" }";
 }
 else
 {
-    echo "{ good: false, what: \"update error: ".sqlite3_error($handle)."\" }";
+    echo "{ good: false, what: \"update error: ".mysql_error()."\" }";
 }
 
-sqlite3_close($handle);
+mysql_close();
 
 ?>

@@ -1,7 +1,8 @@
 <?php
 
-$username = $_COOKIE["username"];
-$password = $_POST["password"];
+$username     = $_COOKIE["username"];
+$password     = $_POST["password"];
+$databasename = "chat";
 
 if(( ! $username) || ($username == ""))
 {
@@ -15,59 +16,37 @@ if(( ! $password) || ($password == ""))
     return;
 }
 
-$handle = sqlite3_open("chat.db");
-
-if( ! $handle)
+if( ! mysql_connect())
 {
-    echo "{ good: false, what: \"account database open error: ".sqlite3_error($handle)."\" }";
+    echo "{ good: false, what: \"cannot connect DBMS: ".mysql_error()."\" }";
     return;
 }
 
-$query = "select count(*) from sqlite_master where type=\"table\" and name=\"accounts\";";
-$resultset = sqlite3_query($handle, $query);
-
-if($resultset)
+if( ! mysql_select_db($databasename))
 {
-    $a = sqlite3_fetch_array($resultset);
-    sqlite3_query_close($resultset);
-
-    if($a["count(*)"] == 0)
-    {
-        $query = "create table accounts (".
-                 "  username    varchar(50) primary key,".
-                 "  password    varchar(100),".
-                 "  iconurl     varchar(100),".
-                 "  mailaddress varchar(100),".
-                 "  established char(14)".
-                 ");";
-        if( ! sqlite3_exec($handle, $query))
-        {
-            echo "{ good: false, what: \"cannnot create account table: ".sqlite3_error($handle)."\"}";
-            sqlite3_close($handle);
-            return;
-        }
-    }
+    echo "{ good: false, what: \"cannot select database: ".mysql_error()."\" }";
+    mysql_close();
+    return;
 }
 
 $query = "select username, password, iconurl, mailaddress from accounts where username=\"$username\";";
-$resultset = sqlite3_query($handle, $query);
+$resultset = mysql_query(, $query);
 if($resultset)
 {
-    $a = sqlite3_fetch_array($resultset);
-    sqlite3_query_close($resultset);
+    $a = mysql_fetch_assoc($resultset);
+    mysql_free_result($resultset);
 
     if($a["username"] == "")
     {
-        $today = date("YmdHis");
-        $query = "insert into accounts (username, password, iconurl, mailaddress, established)".
-                 "  values (\"$username\", \"$password\", \"\", \"\", \"$today\");";
-        if(sqlite3_exec($handle, $query))
+        $query = "insert into accounts (username, password, iconurl, mailaddress)".
+                 "  values (\"$username\", \"$password\", \"\", \"\");";
+        if(mysql_query($query))
         {
             echo "{ good: true, usename: \"$username\", iconurl: \"\", mailaddress: \"\"  }";
         }
         else
         {
-            echo "{ good: false, what: \"insert error: ".sqlite3_error($handle)."\" }";
+            echo "{ good: false, what: \"insert error: ".mysql_error()."\" }";
         }
     }
     else if($a["password"] == $password)
@@ -81,9 +60,9 @@ if($resultset)
 }
 else
 {
-    echo "{ good: false, what: \"no account table: ".sqlite3_error($handle)."\" }";
+    echo "{ good: false, what: \"no account table: ".mysql_error()."\" }";
 }
 
-sqlite3_close($handle);
+mysql_close();
 
 ?>
