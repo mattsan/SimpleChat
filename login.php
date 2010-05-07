@@ -1,17 +1,19 @@
 <?php
 
+header("Content-type: text/plane; charset=utf-8");
+
 $username = $_COOKIE["username"];
 $password = $_POST["password"];
 
 if(( ! $username) || ($username == ""))
 {
-    echo "{ good: false, what: \"no username\" }";
+    echo "{ \"good\": false, \"what\": \"no username\" }";
     return;
 }
 
 if(( ! $password) || ($password == ""))
 {
-    echo "{ good: false, what: \"no password\" }";
+    echo "{ \"good\": false, \"what\": \"no password\" }";
     return;
 }
 
@@ -19,7 +21,7 @@ $handle = sqlite3_open("chat.db");
 
 if( ! $handle)
 {
-    echo "{ good: false, what: \"account database open error: ".sqlite3_error($handle)."\" }";
+    echo "{ \"good\": false, \"what\": \"account database open error: ".sqlite3_error($handle)."\" }";
     return;
 }
 
@@ -42,7 +44,7 @@ if($resultset)
                  ");";
         if( ! sqlite3_exec($handle, $query))
         {
-            echo "{ good: false, what: \"cannnot create account table: ".sqlite3_error($handle)."\"}";
+            echo "{ \"good\": false, \"what\": \"cannnot create account table: ".sqlite3_error($handle)."\"}";
             sqlite3_close($handle);
             return;
         }
@@ -63,25 +65,28 @@ if($resultset)
                  "  values (\"$username\", \"$password\", \"\", \"\", \"$today\");";
         if(sqlite3_exec($handle, $query))
         {
-            echo "{ good: true, usename: \"$username\", iconurl: \"\", mailaddress: \"\"  }";
+            $username = mb_convert_encoding($username, "utf-8");
+            echo "{ \"good\": true, \"usename\": \"$username\", \"iconurl\": \"\", \"mailaddress\": \"\"  }";
         }
         else
         {
-            echo "{ good: false, what: \"insert error: ".sqlite3_error($handle)."\" }";
+            echo "{ \"good\": false, \"what\": \"insert error: ".sqlite3_error($handle)."\" }";
         }
     }
     else if($a["password"] == $password)
     {
-        echo "{ good: true, usename: \"$a[username]\", iconurl: \"$a[iconurl]\", mailaddress: \"$a[mailaddress]\"  }";
+        $username = mb_convert_encoding($a["username"], "utf-8");
+        echo "{ \"good\": true, \"usename\": \"$a[username]\", \"iconurl\": \"$a[iconurl]\", \"mailaddress\": \"$a[mailaddress]\"  }";
     }
     else
     {
-        echo "{ good: false, what: \"$username - password unmatched\", username: \"$username\" }";
+        $username = mb_convert_encoding($username, "utf-8");
+        echo "{ \"good\": false, \"what\": \"$username - password unmatched\", username: \"$username\" }";
     }
 }
 else
 {
-    echo "{ good: false, what: \"no account table: ".sqlite3_error($handle)."\" }";
+    echo "{ \"good\": false, \"what\": \"no account table: ".sqlite3_error($handle)."\" }";
 }
 
 sqlite3_close($handle);

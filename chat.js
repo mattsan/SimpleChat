@@ -208,7 +208,7 @@ function ResponseReceiver(onResponse)
 
         try
         {
-            eval("var response = (" + xmlhttp.responseText + ")");
+            eval("var response = (" + xmlhttp.responseText + ");");
             doResponse(response);
         }
         catch(e)
@@ -226,7 +226,7 @@ function Server()
 
         xmlhttp.open("POST", url, true);
         xmlhttp.onreadystatechange = function () { receiver.responseReceived(); };
-        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded;");
         xmlhttp.send(query);
     };
 
@@ -280,6 +280,16 @@ function View()
     body.config.hide();
 
     clearLog();
+
+    body.help.onshow = function ()
+    {
+        document.getElementById("help_button").innerHTML = "使い方を閉じる";
+    };
+
+    body.help.onhide = function ()
+    {
+        document.getElementById("help_button").innerHTML = "使い方を見る";
+    };
 
     var addTextWithAnchor = function (elem, source)
     {
@@ -337,15 +347,15 @@ function View()
         decorate(decoratedStatement);
         result.appendChild(decoratedStatement);
         result.appendChild(serial_datetime_span);
-        result.style.backgroundImage = "url(" + iconurl + ")";
+        result.style.backgroundImage  = "url(" + iconurl + ")";
+        result.style.backgroundRepeat = "no-repeat"; // FOR IE's bug
+        result.style.padding = "0px 50px 20px"; // FOR IE's bug
         result.setAttribute("id", serial);
 
         return result;
     };
 
-    var fadein = function (item) {};
-
-    var fadein_ = function (item)
+    var fadein = function (item)
     {
         item.style.marginTop = "-" + item.offsetHeight + "px";
         var top = -item.offsetHeight;
@@ -465,6 +475,7 @@ function View()
                 config.iconurl.value     = values.iconurl;
                 config.mailaddress.value = values.mailaddress;
             }
+            document.getElementById("config_button").innerHTML = "設定の変更を反映する";
         };
 
         body.config.onhide = function ()
@@ -474,6 +485,7 @@ function View()
                 var config = document.getElementById("config");
                 onConfigured({ iconurl: config.iconurl.value, mailaddress: config.mailaddress.value });
             }
+            document.getElementById("config_button").innerHTML = "設定を変更する";
         };
     };
 
@@ -556,6 +568,7 @@ function Chat(server, view)
     {
         eraseCookie("connected");
         interval.clear();
+        entrance.password.value = ""; // <<< TODO: Viewをバイパスしてる。
         view.setMessage("ユーザ名とパスワードを入力してください");
         showEntrance();
     };
@@ -615,6 +628,7 @@ function Chat(server, view)
                 var username  = decodeURIComponent(response.statements[i].username);
                 var statement = decodeURIComponent(response.statements[i].statement);
                 var datetime  = response.statements[i].datetime;
+                var iconurl   = response.statements[i].iconurl;
                 view.insertBeforeNewest(serial, username, statement, datetime, iconurl);
             }
         }
@@ -702,7 +716,8 @@ function Chat(server, view)
     var showEntrance = function ()
     {
         var entrance = document.getElementById("entrance"); // <<< TODO: Viewをバイパスしてる
-        entrance.username.value = readCookie("username");   // <<< TODO: Viewをバイパスしてる
+        var username = readCookie("username")
+        entrance.username.value = username ? username : "";   // <<< TODO: Viewをバイパスしてる
         view.showEntrance();
     };
 
@@ -716,8 +731,9 @@ function Chat(server, view)
 
         if(isConnected())
         {
+            var password = readCookie("password");
             view.setMessage("ログイン処理中");
-            server.login(readCookie("password"), showLogAndReadStatements);
+            server.login(password ? password : "", showLogAndReadStatements);
         }
         else
         {

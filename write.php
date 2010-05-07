@@ -1,5 +1,7 @@
 <?php
 
+header("Content-type: text/plane; charset=utf-8");
+
 $username  = $_COOKIE["username"];
 $statement = $_POST["statement"];
 $datetime  = date("YmdHis");
@@ -8,7 +10,7 @@ $handle = sqlite3_open("chat.db");
 
 if( ! $handle)
 {
-    echo "{ good: false, what: \"cannot open database: ".sqlite3_error($handle)."\"}";
+    echo "{ \"good\": false, \"what\": \"cannot open database: ".sqlite3_error($handle)."\"}";
     return;
 }
 
@@ -17,7 +19,7 @@ $resultset = sqlite3_query($handle, $query);
 
 if( ! $resultset)
 {
-    echo "{ good: false, what: \"".sqlite3_error($handle)."\" }";
+    echo "{ \"good\": false, \"what\": \"".sqlite3_error($handle)."\" }";
     sqlite3_close($handle);
     return;
 }
@@ -34,7 +36,7 @@ if($a["count(*)"] == 0)
              " datetime char(14) );";
     if( ! sqlite3_exec($handle, $query))
     {
-        echo "{ good: false, what: \"".sqlite3_error($handle)."\" }";
+        echo "{ \"good\": false, \"what\": \"".sqlite3_error($handle)."\" }";
         sqlite3_close($handle);
         return;
     }
@@ -47,8 +49,7 @@ if(($username != "") && ($statement != ""))
     $result = sqlite3_exec($handle, $query);
     if($result)
     {
-        echo "{ good: true }";
-        // TODO: send mail
+        echo "{ \"good\": true }";
         $addresses = array();
         $serial    = 0;
 
@@ -74,24 +75,23 @@ if(($username != "") && ($statement != ""))
 
         if(count($addresses) > 0)
         {
-            // TODO: send mail
-            // （代替コード）
-            $fh = fopen("mail.log", "a+");
-            if($fh)
-            {
-                fprintf($fh, "(%s) %s > %s - (No.%08d - %s)\n",
-                             join($addresses, ","),
-                             $username,
-                             $statement,
-                             $serial,
-                             date("Y/m/d-H:i:s"));
-                fclose($fh);
-            }
+            $subject  = sprintf("[chat:%08d] %s said...", $serial, mb_convert_encoding($username, "ISO-2022-JP"));
+            $subject  = mb_encode_mimeheader($subject);
+            $additionalMessage = "(this message send from chat site http://xxx.xxx.xxx.xxx/ )";
+            $mailbody = sprintf("%s > %s - (No.%08d - %s)\n\n%s\n",
+                                $username,
+                                $statement,
+                                $serial,
+                                date("Y/m/d-H:i:s"),
+                                $additionalMessage);
+            $mailbody = mb_convert_encoding($mailbody, "ISO-2022-JP");
+
+            mail(join($addresses, ","), $subject, $mailbody);
         }
     }
     else
     {
-        echo "{ good: false, what: \"write error: ".sqlite3_error($handle)."\" }";
+        echo "{ \"good\": false, \"what\": \"write error: ".sqlite3_error($handle)."\" }";
     }
 }
 

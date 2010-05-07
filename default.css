@@ -33,20 +33,20 @@ ul
 {
     list-style-type: none;
     padding-left: 10px;
-    overflow: hidden;"
+    overflow: hidden;
+    width: 100%; // for IE6's bug (see http://d.hatena.ne.jp/seto-san/20081221/1229841719 or etc.)
 }
 
 li
 {
-    padding-top: 0px;
-    padding-bottom: 20px;
-    padding-left: 50px;
+    padding: 0px 50px 20px;
     margin-left: 0px;
     background-repeat: no-repeat;
 }
 
 .prev
 {
+    background-color: #ffe0e0;
     padding: 5px;
     margin: 5px;
     text-align: center;

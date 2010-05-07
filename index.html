@@ -22,7 +22,17 @@
       <tr><td>ユーザ名</td><td><input type="text" name="username" size="45" /></td></tr>
       <tr><td>パスワード</td><td><input type="password" name="password" size="45" /></td></tr>
       <tr><td colspan="2" style="text-align: center;"><input type="submit" value="ログイン" /></td></tr>
-      <tr><td colspan="2" style="text-align: center; font-size: small;">新しいユーザ名とパスワードを入力すると<br />自動的に新しいアカウントを作成します<br />すでにユーザ名が登録されている場合は<br />パスワードが一致しないとログインできません</td></tr>
+      <tr>
+        <td colspan="2" style="text-align: center; font-size: small;">
+            新しいユーザ名とパスワードを入力すると<br />
+            自動的に新しいアカウントを作成します<br />
+            <br />
+            ユーザ名には日本語も使えます。<br />
+            <br />
+            すでにユーザ名が登録されている場合は<br />
+            パスワードが一致しないとログインできません
+        </td>
+      </tr>
     </table>
   </form>
 </div>
@@ -38,31 +48,27 @@
   <tr>
     <td colspan="3">
       <a href="" id="disconnect">ログアウト</a> ／ 
-      <a href="" id="help_button">使い方</a> ／ 
-      <a href="" id="config_button">設定</a>
+      <a href="" id="help_button">使い方を見る</a> ／ 
+      <a href="" id="config_button">設定を変更する</a>
     </td>
   </tr>
   </table>
   </form>
 
-  <div style="overflow: hidden;">
-    <div id="help" class="help">
-      <table>
-        <tr><td>((large:〜))</td><td>「〜」の部分を大きな文字で表示</td></tr>
-        <tr><td>((small:〜))</td><td>「〜」の部分を小さな文字で表示</td></tr>
-        <tr><td>((red:〜))</td><td>「〜」の部分を赤い色の文字で表示（他に、blue, green, yellowが使えます）</td></tr>
-        <tr><td>http:〜</td><td>URLは自動的にリンクが設定されます</td></tr>
-      </table>
-    </div>
+  <div id="help" class="help" style="background-color: #e0e0ff; margin: 5px; padding: 5px;">
+    <table>
+      <tr><td colspan="2">URLは自動的にリンクが設定されます。</td></tr>
+      <tr><td colspan="2">“((”と“))”で囲まれた文字を装飾します。以下の装飾が指定できます。</td></tr>
+      <tr><td>((large:～))</td><td>「～」の部分を大きな文字で表示</td></tr>
+      <tr><td>((small:～))</td><td>「～」の部分を小さな文字で表示</td></tr>
+      <tr><td>((red:～))</td><td>「～」の部分を赤い色の文字で表示（他に、blue, green, yellowが使えます）</td></tr>
+      <tr><td colspan="2">複数の装飾を同時使えます。例：“((large:((red:大きくて赤い文字))))”</td></tr>
+    </table>
   </div>
 
-  <div style="overflow: hidden;">
-    <form name="config" id="config" class="help">
+  <div>
+    <form name="config" id="config" class="help" style="background-color: #e0e0ff; margin: 5px; padding: 5px;">
       <table>
-        <tr>
-          <td></td>
-          <td colspan="2" style="font-size: small;">もう一度「設定」をクリックしてこの欄を閉じると設定内容が反映されます</td>
-        </tr>
         <tr>
           <td>アイコンのURL</td>
           <td><input type="text" name="iconurl" size="45" /></td>
@@ -70,7 +76,7 @@
         </tr>
         <tr>
           <td></td>
-          <td colspan="2" style="font-size: small;">相対でも絶対（http://〜から始まるURL）でも指定できます</td>
+          <td colspan="2" style="font-size: small;">使用したいアイコンの絶対URL（http://～から始まるURL）を指定することもできます</td>
         </tr>
         <tr>
           <td>メールアドレス</td>
@@ -88,7 +94,7 @@
 
   <ul id="statements">
   </ul>
-  <div id="prev" class="prev">以前の発言</div>
+  <div id="prev" class="prev" style="background-color: #ffe0e0; padding: 5px; margin: 5px; text-align: center; background-color: #ffe0e0;  font-family: sans-serif; border: 2px solid #ff8080; cursor: pointer;">以前の発言</div>
 </div>
 
 </body>
