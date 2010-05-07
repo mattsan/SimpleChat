@@ -1,25 +1,21 @@
 <?php
 
-$greater      = $_POST["greater"];
-$less         = $_POST["less"];
-$count        = $_POST["count"];
-$databasename = "chat";
+header("Content-type: text/plane; charset=utf-8");
 
-if(( ! $username) || ($username == ""))
-{
-    echo "{ good: false, what: \"no username\" }";
-    return;
-}
+$greater = $_POST["greater"];
+$less    = $_POST["less"];
+$count   = $_POST["count"];
+$databasename = "chat";
 
 if( ! mysql_connect())
 {
-    echo "{ good: false, what: \"cannot connect DBMS: ".mysql_error()."\" }";
+    echo "{ \"good\": false, \"what\": \"cannot connect DBMS: ".mysql_error()."\" }";
     return;
 }
 
 if( ! mysql_select_db($databasename))
 {
-    echo "{ good: false, what: \"cannot select database: ".mysql_error()."\" }";
+    echo "{ \"good\": false, \"what\": \"cannot select database: ".mysql_error()."\" }";
     mysql_close();
     return;
 }
@@ -47,24 +43,28 @@ if($count)
 $query .= ";";
 
 $resultset = mysql_query($query);
-if()
+
+if($resultset)
 {
-    echo "{ good: true, statements: [";
+    echo "{ \"good\": true, \"statements\": [";
+    $ss = array();
     while($a = mysql_fetch_assoc($resultset))
     {
-        echo "{ serial    : \"$a[serial]\",".
-             "  username  : \"$a[username]\",".
-             "  statement : \"$a[statement]\",".
-             "  datetime  : \"$a[datetime]\",".
-             "  iconurl   : \"$a[iconurl]\"".
-             "},\n";
+        $username  = mb_convert_encoding($a["username"], "utf-8");
+        $statement = mb_convert_encoding($a["statement"], "utf-8");
+        array_push($ss, "{ \"serial\"    : \"$a[serial]\",".
+                        "  \"username\"  : \"$username\",".
+                        "  \"statement\" : \"$statement\",".
+                        "  \"datetime\"  : \"$a[datetime]\",".
+                        "  \"iconurl\"   : \"$a[iconurl]\"".
+                        "}");
     }
     mysql_free_result($resultset);
-    echo "] }";
+    echo join($ss, ",\n")."] }";
 }
 else
 {
-    echo "{ good: false, what: \"read statements error: ".mysql_error()."\" }";
+    echo "{ \"good\": false, \"what\": \"read statements error: ".mysql_error()."\" }";
 }
 
 mysql_close();
